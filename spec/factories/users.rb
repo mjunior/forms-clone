@@ -10,7 +10,8 @@ FactoryBot.define do
    email        { FFaker::Internet.email }
    name         { FFaker::Name.name }
    nickname     { FFaker::Internet.user_name }
-   password     { FFaker::Lorem.word }
+   password     { '123456789' }
+   password_confirmation     { '123456789' }
    provider     'email'
    confirmed_at timestamp
    created_at   timestamp

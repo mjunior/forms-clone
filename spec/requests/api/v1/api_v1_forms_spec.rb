@@ -20,7 +20,7 @@ RSpec.describe "Api::V1::Forms", type: :request do
       end
 
       it 'Return list with two forms' do
-        expect(json[:forms].count).to sql(2)
+        expect(json.count).to eql(2)
       end
 
       it 'Check that list form are right data' do
@@ -39,7 +39,7 @@ RSpec.describe "Api::V1::Forms", type: :request do
       context 'When the form is enable' do
         before do
           @form = create(:form, user:@user, enable: true)
-          get "api/v1/forms#{@form.friendly_id}", params: {}, headers: header_with_authentication(@user)
+          get "/api/v1/forms/#{@form.friendly_id}", params: {}, headers: header_with_authentication(@user)
         end
 
         it 'Return HTTP Status 200' do
@@ -47,7 +47,7 @@ RSpec.describe "Api::V1::Forms", type: :request do
         end
         
         it 'Return the form' do
-          expect(json).to eql(JSON.parse(@form, symbolize_names: true))
+          expect(json).to eql(JSON.parse(@form.to_json(include: :questions), symbolize_names: true))
         end
       end
 
@@ -57,7 +57,7 @@ RSpec.describe "Api::V1::Forms", type: :request do
         end
 
         it 'Return HTTP Status 404' do
-          get "api/v1/forms/#{@form.friendly_id}", params: {}, headers: header_with_authentication(@user)
+          get "/api/v1/forms/#{@form.friendly_id}", params: {}, headers: header_with_authentication(@user)
           expect_status(404)
         end
       end
@@ -65,7 +65,7 @@ RSpec.describe "Api::V1::Forms", type: :request do
 
     context 'When the form does not exist' do
       it 'Return HTTP Status 404' do
-        get "api/v1/forms/este1-form2-nunca3-vai4-existir5",
+        get "/api/v1/forms/este1-form2-nunca3-vai4-existir5",
           params: {},
           headers: header_with_authentication(@user)
         
@@ -84,7 +84,7 @@ RSpec.describe "Api::V1::Forms", type: :request do
       context 'When the params is valid' do
         before do
           @form_params = attributes_for(:form)
-          post "api/v1/forms", params: {form: @form_params}, headers: header_with_authentication(@user)
+          post "/api/v1/forms", params: {form: @form_params}, headers: header_with_authentication(@user)
         end
 
         it 'Return HTTP Status 200' do
@@ -92,14 +92,15 @@ RSpec.describe "Api::V1::Forms", type: :request do
         end
 
         it "form are created with correct data" do
-          @form_attributes.each do |field|
+          @form_params.each do |field|
             expect(Form.first[field.first]).to eql(field.last)
           end
         end
 
         it "Returned data is correct" do
-          @form_attributes.each do |field|
-            expect(json[field.first.to_s]).to eql(field.last)
+          
+          @form_params.each do |field|
+            expect(json[field.first.to_sym]).to eql(field.last)
           end
         end
 
@@ -119,7 +120,7 @@ RSpec.describe "Api::V1::Forms", type: :request do
     end
 
     context 'When the user isnt logged' do
-      it_behaves_like :deny_without_authorization, :post, "api/v1/forms"
+      it_behaves_like :deny_without_authorization, :post, "/api/v1/forms"
     end
   end
 
@@ -144,12 +145,12 @@ RSpec.describe "Api::V1::Forms", type: :request do
         end
 
         it "returned Form with right datas" do
-          expect(json.except('questions')).to eql(JSON.parse(@form.to_json))
+          expect(json.except(:questions)).to eql(JSON.parse(@form.to_json, symbolize_names: true))
         end
 
         it "returned associated questions" do
-          expect(json['questions'].first).to eql(JSON.parse(@question1.to_json))
-          expect(json['questions'].last).to  eql(JSON.parse(@question2.to_json))
+          expect(json[:questions].first).to eql(JSON.parse(@question1.to_json, symbolize_names: true))
+          expect(json[:questions].last).to  eql(JSON.parse(@question2.to_json, symbolize_names: true))
         end
       end
 

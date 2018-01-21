@@ -58,8 +58,8 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, type: :controller
   
   # Custom json helpers
-  config.include Requests::JsonHelpers, type: :request
+  config.include Request::JsonHelpers, type: :request
   
   # Custom Header helpers
-  config.include Requests::HeaderHelpers, type: :request
+  config.include Request::HeaderHelpers, type: :request
 end

@@ -1,4 +1,4 @@
-module Api::V1::ApiController < ::ApplicationController
+class Api::V1::ApiController < ApplicationController
   
   rescue_from(ActiveRecord::RecordNotFound) do ||
     render(json: {message: 'Not Found'}, status: :not_found)

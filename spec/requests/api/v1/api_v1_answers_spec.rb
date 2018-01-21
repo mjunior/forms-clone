@@ -25,8 +25,8 @@ RSpec.describe "Api::V1::Answers", type: :request do
       end
 
       it "returned Answers have right datas" do
-        expect(json[0]).to eql(JSON.parse(@answer1.to_json))
-        expect(json[1]).to eql(JSON.parse(@answer2.to_json))
+        expect(json[0]).to eql(JSON.parse(@answer1.to_json(include: :questions_answers), symbolize_names: true))
+        expect(json[1]).to eql(JSON.parse(@answer2.to_json(include: :questions_answers), symbolize_names: true))
       end
     end
   end
@@ -55,12 +55,12 @@ RSpec.describe "Api::V1::Answers", type: :request do
         end
 
         it "returned Answer with right datas" do
-          expect(json.except("questions_answers")).to eql(JSON.parse(@answer.to_json))
+          expect(json.except(:questions_answers)).to eql(JSON.parse(@answer.to_json, symbolize_names: true))
         end
 
         it "returned associated questions_answers" do
-          expect(json['questions_answers'].first).to eql(JSON.parse(@questions_answers_1.to_json))
-          expect(json['questions_answers'].last).to  eql(JSON.parse(@questions_answers_2.to_json))
+          expect(json[:questions_answers].first).to eql(JSON.parse(@questions_answers_1.to_json, symbolize_names: true))
+          expect(json[:questions_answers].last).to  eql(JSON.parse(@questions_answers_2.to_json, symbolize_names: true))
         end
       end
 
@@ -74,11 +74,6 @@ RSpec.describe "Api::V1::Answers", type: :request do
   end
 
   describe "POST /answers" do
-
-    context "With Invalid authentication headers" do
-      it_behaves_like :deny_without_authorization, :post, "/api/v1/answers"
-    end
-
     context "With valid authentication headers" do
       before do
         @user = create(:user)
@@ -102,8 +97,8 @@ RSpec.describe "Api::V1::Answers", type: :request do
         end
 
         it "questions answer are associated" do
-          expect(json["id"]).to eql(QuestionsAnswer.first.answer.id)
-          expect(json["id"]).to eql(QuestionsAnswer.last.answer.id)          
+          expect(json[:id]).to eql(QuestionsAnswer.first.answer.id)
+          expect(json[:id]).to eql(QuestionsAnswer.last.answer.id)          
         end
       end
 
